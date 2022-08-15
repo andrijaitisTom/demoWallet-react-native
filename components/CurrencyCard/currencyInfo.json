@@ -1,0 +1,18 @@
+{
+    "BTC": {
+        "name": "Bitcoin",
+        "funds": 0.31244124
+    },
+    "ETH": {
+        "name": "Ethereum",
+        "funds": 0.327834478541236547
+    },
+    "BNK": {
+        "name": "Banker",
+        "funds": 131231567
+    },
+    "USDP": {
+        "name": "Pax Dollar",
+        "funds": 0.32
+    }
+}
