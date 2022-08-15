@@ -38,7 +38,11 @@ const InputField = props => {
               <TouchableOpacity
                 style={styles.input}
                 onPress={() => dispatch(setToggle(!toggle))}>
-                <Text>{receive * props.price}</Text>
+                <Text>
+                  {receive === 0
+                    ? 'Enter amount to convert'
+                    : receive * props.price}
+                </Text>
               </TouchableOpacity>
             ) : (
               <TextInput
@@ -75,7 +79,11 @@ const InputField = props => {
               <TouchableOpacity
                 style={styles.input}
                 onPress={() => dispatch(setToggle(!toggle))}>
-                <Text>{receive / props.price}</Text>
+                <Text>
+                  {receive === 0
+                    ? 'Enter amount to convert'
+                    : receive / props.price}
+                </Text>
               </TouchableOpacity>
             )}
             <Text style={styles.currency}>USD</Text>

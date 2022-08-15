@@ -3,7 +3,8 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import InputField from '../InputField/InputField';
 import Convert from '../../images/Convert.svg';
 import Illustration from '../../images/ConvertIllustration.svg';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {setReceive} from '../../redux/actions';
 
 interface Props {
   price: number;
@@ -12,8 +13,14 @@ interface Props {
 }
 
 const WalletLayout = (props: Props) => {
+  const dispatch = useDispatch();
   const {pay, name} = useSelector(state => state.useReducer);
   const [isPay, setIsPay] = useState(true);
+
+  const handlePressConvert = () => {
+    setIsPay(!isPay);
+    dispatch(setReceive(0));
+  };
 
   return (
     <View style={[styles.container]}>
@@ -30,7 +37,7 @@ const WalletLayout = (props: Props) => {
           total={props.total}
           crypto={props.crypto}
         />
-        <TouchableOpacity onPress={() => setIsPay(!isPay)}>
+        <TouchableOpacity onPress={() => handlePressConvert()}>
           <Convert />
         </TouchableOpacity>
         <InputField
