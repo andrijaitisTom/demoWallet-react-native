@@ -1,61 +1,26 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import React, {useEffect} from 'react';
+import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 import Icons from '../../images/Icons';
 import USD from '../../images/USD.svg';
 import CurrencyCard from '../CurrencyCard/CurrencyCard';
-import {setBTC, setBNK, setETH, setUSDP} from '../../redux/actions';
 import {useDispatch, useSelector} from 'react-redux';
-import axios from 'axios';
 import currencyInfo from '../CurrencyCard/currencyInfo.json';
 import {NavigationAction} from 'react-navigation';
+import getRequests from '../../helpers/getRequest';
 
 interface Props {
   navigation: NavigationAction;
 }
 
 const HomeLayout = (props: Props) => {
-  const {btc, eth, bnk, usdp} = useSelector(state => state.useReducer);
+  const {allValues} = useSelector(state => state.useReducer);
   const dispatch = useDispatch();
 
-  const [allValues, setAllValues] = useState({
-    BTC: '',
-    BNK: '',
-    ETH: '',
-    USDP: '',
-  });
-
-  async function getData(label: string) {
-    try {
-      let res = await axios({
-        url: `https://spectrocoin.com/scapi/ticker/${label}/USD`,
-        method: 'get',
-        timeout: 8000,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (res.status == 200) {
-        console.log(res.status);
-      }
-      return res.data;
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   useEffect(() => {
-    getData('BTC').then(res => dispatch(setBTC(res.last)));
-    getData('BNK').then(res => dispatch(setBNK(res.last)));
-    getData('ETH').then(res => dispatch(setETH(res.last)));
-    getData('USDP').then(res => dispatch(setUSDP(res.last)));
-    setAllValues({
-      BNK: bnk,
-      BTC: btc,
-      ETH: eth,
-      USDP: usdp,
-    });
-  }, [bnk, btc, dispatch, eth, usdp]);
+    getRequests(dispatch);
+  }, [dispatch]);
 
+  // console.log(btc);
   let totalValue = 0;
 
   const countTotal = () => {
@@ -77,12 +42,20 @@ const HomeLayout = (props: Props) => {
       <View style={styles.first}>
         <Text style={styles.totalTitle}>Total</Text>
         <View style={styles.total}>
-          <USD style={styles.image} />
-          <Text style={styles.text}>
-            <Text style={styles.full}>{fullNumber}</Text>
-            <Text style={styles.decimal}>{` .${decimal}`} </Text>
-            <Text style={styles.currency}>USD</Text>
-          </Text>
+          {decimal === undefined ? (
+            <ActivityIndicator size="large" />
+          ) : (
+            <>
+              <USD style={styles.image} />
+              <Text style={styles.text}>
+                <Text style={styles.full}>{fullNumber}</Text>
+                <Text style={styles.decimal}>
+                  {` .${decimal.substring(0, 2)}`}{' '}
+                </Text>
+                <Text style={styles.currency}>USD</Text>
+              </Text>
+            </>
+          )}
         </View>
       </View>
       <View style={styles.second}>

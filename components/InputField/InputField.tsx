@@ -1,98 +1,87 @@
-import React, {useEffect} from 'react';
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  BackHandler,
-} from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet, Text, TextInput, View} from 'react-native';
+import Svg from 'react-native-svg';
 import {useDispatch, useSelector} from 'react-redux';
-import {selectCurrency} from '../../images/Icons';
-import USD from '../../images/USD.svg';
-import {setToggle, setReceive} from '../../redux/actions';
+import {setReceive} from '../../redux/actions';
 
-const InputField = props => {
+interface Props {
+  crypto: number;
+  currencyLogo: Svg;
+  label: string;
+  payField: string;
+  price: number;
+  total: number;
+}
+
+const InputField = (props: Props) => {
   const dispatch = useDispatch();
-  const {toggle, receive, total} = useSelector(state => state.useReducer);
+  const {receive} = useSelector(state => state.useReducer);
 
-  useEffect(() => {
-    const backAction = () => {
-      dispatch(setReceive(0)); // cleans input values on clicking back
-    };
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
+  const [focusedOn, setFocusedOn] = useState(null);
+
+  const onChanged = (value: string) => {
+    dispatch(
+      setReceive(
+        value
+          .replace(/[^.\d]/g, '') //numbers only
+          .replace(/^(\d*\.?)|(\d*)\.?/g, '$1$2') //one dot only
+          .replace(/^\./, '') // cannot start with dot
+          .replace(/^0/, ''), //cannot start with 0
+      ),
     );
-    return () => backHandler.remove();
-  }, []);
+  };
+
+  const chooseValue = () => {
+    if (focusedOn) {
+      return receive;
+    } else if (!focusedOn) {
+      if (props.payField !== 'USD') {
+        const value = receive * props.price;
+        return value.toString();
+      }
+      if (props.payField === 'USD') {
+        const value = receive / props.price;
+        const formattedValue = (Math.round(value * 100) / 100).toFixed(2);
+        return formattedValue.toString();
+      }
+    }
+  };
+
+  const ErrorMessage = () => {
+    const crypto = Number(props.crypto);
+    const total = Number(props.total);
+    const inputValue = Number(receive);
+    if (focusedOn && props.payField !== 'USD' && crypto < inputValue) {
+      return (
+        <Text style={styles.warning}>
+          Not Enougn {props.payField} in balance
+        </Text>
+      );
+    }
+    if (focusedOn && props.payField === 'USD' && total < inputValue) {
+      return <Text style={styles.warning}>Not Enougn USD in balance</Text>;
+    }
+    return null;
+  };
 
   return (
     <View>
-      {props.isPay ? (
-        <View>
-          <Text style={styles.label}>Pay amount</Text>
-          <View style={styles.container}>
-            <View style={styles.icon}>{selectCurrency(props.payField)}</View>
-            {toggle ? (
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => dispatch(setToggle(!toggle))}>
-                <Text>
-                  {receive === 0
-                    ? 'Enter amount to convert'
-                    : receive * props.price}
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <TextInput
-                style={styles.input}
-                placeholder="Enter amount to convert"
-                onChangeText={value => dispatch(setReceive(value))}
-                keyboardType="numeric"
-                placeholderTextColor="#B3B6C6"
-              />
-            )}
-
-            <Text style={styles.currency}>{props.payField}</Text>
-          </View>
-          {receive > props.crypto && !toggle ? (
-            <Text style={styles.warning}>Not Enougn {props.payField}</Text>
-          ) : null}
-        </View>
-      ) : (
-        <View>
-          <Text style={styles.label}>Receive amount</Text>
-          <View style={styles.container}>
-            <View style={styles.icon}>
-              <USD />
-            </View>
-            {toggle ? (
-              <TextInput
-                style={styles.input}
-                placeholder="Enter amount to convert"
-                onChangeText={value => dispatch(setReceive(value))}
-                keyboardType="numeric"
-                placeholderTextColor="#B3B6C6"
-              />
-            ) : (
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => dispatch(setToggle(!toggle))}>
-                <Text>
-                  {receive === 0
-                    ? 'Enter amount to convert'
-                    : receive / props.price}
-                </Text>
-              </TouchableOpacity>
-            )}
-            <Text style={styles.currency}>USD</Text>
-          </View>
-          {receive > parseInt(props.total) && toggle ? (
-            <Text style={styles.warning}>Not Enougn USD</Text>
-          ) : null}
-        </View>
-      )}
+      <Text style={styles.label}>{props.label}</Text>
+      <View style={styles.container}>
+        <View style={styles.icon}>{props.currencyLogo}</View>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter amount to convert"
+          onChangeText={value => onChanged(value)}
+          keyboardType="numeric"
+          placeholderTextColor="#B3B6C6"
+          value={receive === 0 ? null : chooseValue()}
+          onFocus={() => setFocusedOn(true)}
+          onBlur={() => setFocusedOn(false)}
+        />
+        <Text style={styles.currency}>{props.payField}</Text>
+      </View>
+      <ErrorMessage />
     </View>
   );
 };
