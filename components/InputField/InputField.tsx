@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 import Svg from 'react-native-svg';
 import {useDispatch, useSelector} from 'react-redux';
+import {onlyNumbersAndDot} from '../../helpers/helpers';
 import {setReceive} from '../../redux/actions';
 
 interface Props {
@@ -16,19 +17,10 @@ interface Props {
 const InputField = (props: Props) => {
   const dispatch = useDispatch();
   const {receive} = useSelector(state => state.useReducer);
-
   const [focusedOn, setFocusedOn] = useState(null);
 
   const onChanged = (value: string) => {
-    dispatch(
-      setReceive(
-        value
-          .replace(/[^.\d]/g, '') //numbers only
-          .replace(/^(\d*\.?)|(\d*)\.?/g, '$1$2') //one dot only
-          .replace(/^\./, '') // cannot start with dot
-          .replace(/^0/, ''), //cannot start with 0
-      ),
-    );
+    dispatch(setReceive(onlyNumbersAndDot(value)));
   };
 
   const chooseValue = () => {
@@ -47,18 +39,28 @@ const InputField = (props: Props) => {
     }
   };
 
+  console.log(props.label);
+
   const ErrorMessage = () => {
     const crypto = Number(props.crypto);
     const total = Number(props.total);
     const inputValue = Number(receive);
-    if (focusedOn && props.payField !== 'USD' && crypto < inputValue) {
+    if (
+      props.label === 'Pay amount' &&
+      props.payField !== 'USD' &&
+      crypto < inputValue
+    ) {
       return (
         <Text style={styles.warning}>
           Not Enougn {props.payField} in balance
         </Text>
       );
     }
-    if (focusedOn && props.payField === 'USD' && total < inputValue) {
+    if (
+      props.label === 'Pay amount' &&
+      props.payField === 'USD' &&
+      total < inputValue
+    ) {
       return <Text style={styles.warning}>Not Enougn USD in balance</Text>;
     }
     return null;

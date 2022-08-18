@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  BackHandler,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import InputField from '../InputField/InputField';
 import Convert from '../../images/Convert.svg';
 import Illustration from '../../images/ConvertIllustration.svg';
@@ -18,16 +25,33 @@ const WalletLayout = (props: Props) => {
   const dispatch = useDispatch();
   const {pay, name} = useSelector(state => state.useReducer);
   const [isPay, setIsPay] = useState(true);
+
   useEffect(() => {
     dispatch(setReceive(0)); // cleans input values on entering wallet
+    const {height, width} = Dimensions.get('window');
+    height > width ? setIsPortrait(true) : setIsPortrait(false); //set state on load
+    const subscription = Dimensions.addEventListener('change', ({screen}) => {
+      screen.height > screen.width ? setIsPortrait(true) : setIsPortrait(false); //set state on change
+    });
+    return () => subscription?.remove();
   }, []);
+  useEffect(() => {
+    const backAction = () => {};
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+    return () => backHandler.remove();
+  }, []);
+
+  const [isPortrait, setIsPortrait] = useState(false);
+
+  const [toggle, setToggle] = useState(true);
 
   const handlePressConvert = () => {
     setIsPay(!isPay);
     dispatch(setReceive(0));
   };
-
-  const [toggle, setToggle] = useState(true);
 
   return (
     <View style={[styles.container]}>
@@ -39,7 +63,11 @@ const WalletLayout = (props: Props) => {
         <Illustration style={styles.illustration} />
 
         {toggle ? (
-          <>
+          <View
+            style={[
+              styles.Inputcontainer,
+              isPortrait ? styles.Inputcontainer : styles.rowView,
+            ]}>
             <InputField
               label="Pay amount"
               currencyLogo={selectCurrency(pay)}
@@ -59,9 +87,13 @@ const WalletLayout = (props: Props) => {
               total={props.total}
               crypto={props.crypto}
             />
-          </>
+          </View>
         ) : (
-          <>
+          <View
+            style={[
+              styles.Inputcontainer,
+              isPortrait ? styles.Inputcontainer : styles.rowView,
+            ]}>
             <InputField
               label="Pay amount"
               currencyLogo={<USD />}
@@ -82,7 +114,7 @@ const WalletLayout = (props: Props) => {
               total={props.total}
               crypto={props.crypto}
             />
-          </>
+          </View>
         )}
       </View>
     </View>
@@ -113,6 +145,11 @@ const styles = StyleSheet.create({
     top: -50,
     zIndex: 2,
   },
+  Inputcontainer: {
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    flex: 1,
+  },
   third: {
     paddingTop: 100,
     zIndex: 1,
@@ -122,6 +159,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'space-evenly',
+  },
+  rowView: {
+    justifyContent: 'space-evenly',
+    alignSelf: 'stretch',
+    flex: 1,
+    flexDirection: 'row',
   },
 });
 

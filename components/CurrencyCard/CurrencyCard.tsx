@@ -1,11 +1,11 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {selectCurrency} from '../../images/Icons';
 import currencyInfo from './currencyInfo.json';
-import {setPay, setName, setTotal} from '../../redux/actions';
+import {setPay, setName} from '../../redux/actions';
 import {useDispatch} from 'react-redux';
 
-const CurrencyCard = props => {
+const CurrencyCard = (props: any) => {
   const dispatch = useDispatch();
 
   const info = currencyInfo[props.currency];
@@ -46,9 +46,9 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#00000026',
+    paddingVertical: 10,
   },
   fiat: {color: '#B3B6C6', fontSize: 14},
   amount: {

@@ -1,5 +1,12 @@
-import React, {useEffect} from 'react';
-import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
 import Icons from '../../images/Icons';
 import USD from '../../images/USD.svg';
 import CurrencyCard from '../CurrencyCard/CurrencyCard';
@@ -20,7 +27,6 @@ const HomeLayout = (props: Props) => {
     getRequests(dispatch);
   }, [dispatch]);
 
-  // console.log(btc);
   let totalValue = 0;
 
   const countTotal = () => {
@@ -32,13 +38,12 @@ const HomeLayout = (props: Props) => {
     });
     return totalValue;
   };
-  // countTotal();
   const split = countTotal().toString();
   const fullNumber = split.split('.')[0];
   const decimal = split.split('.')[1];
 
   return (
-    <View style={[styles.container]}>
+    <View style={styles.container}>
       <View style={styles.first}>
         <Text style={styles.totalTitle}>Total</Text>
         <View style={styles.total}>
@@ -61,31 +66,31 @@ const HomeLayout = (props: Props) => {
       <View style={styles.second}>
         <Text style={styles.wallets}>Wallets</Text>
       </View>
-      <View style={styles.third}>
-        {Object.keys(Icons).map((item, i) => (
-          <CurrencyCard
-            currency={item}
-            key={i}
-            navigation={props.navigation}
-            values={allValues}
-            total={fullNumber}
-          />
-        ))}
-      </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.third}>
+          {Object.keys(Icons).map((item, i) => (
+            <CurrencyCard
+              currency={item}
+              key={i}
+              navigation={props.navigation}
+              values={allValues}
+              total={fullNumber}
+            />
+          ))}
+        </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   total: {
-    display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
   },
   container: {
     flex: 1,
     padding: 7,
-    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
   totalTitle: {
     color: '#000000',
@@ -107,13 +112,19 @@ const styles = StyleSheet.create({
     marginBottom: 22,
     fontWeight: '600',
   },
-  first: {flex: 1, justifyContent: 'center'},
-  second: {flex: 1, justifyContent: 'flex-end'},
-  third: {
+  first: {
+    justifyContent: 'flex-start',
+    marginTop: 20,
+  },
+  second: {
     flex: 3,
-    borderRadius: 8,
+    justifyContent: 'flex-end',
+    marginVertical: 10,
+  },
+  third: {
+    flex: 2,
     backgroundColor: '#FFFFFF',
-    justifyContent: 'space-evenly',
+    borderRadius: 8,
   },
 });
 

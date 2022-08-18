@@ -4,3 +4,5 @@ import useReducer from './reducers';
 
 const rootReducer = combineReducers({useReducer});
 export const Store = createStore(rootReducer, applyMiddleware(thunk));
+
+export type AppDispatch = typeof Store.dispatch;

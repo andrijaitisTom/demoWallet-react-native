@@ -1,5 +1,4 @@
 import {
-  SET_TOTAL,
   SET_CURRENCY,
   SET_PAY,
   SET_RECEIVE,
@@ -8,7 +7,6 @@ import {
 } from './actions';
 
 const initialState = {
-  total: '',
   apiResult: [],
   currency: {btc: ''},
   pay: null,
@@ -24,8 +22,6 @@ const initialState = {
 
 function useReducer(state = initialState, action: {type: any; payload: any}) {
   switch (action.type) {
-    case SET_TOTAL:
-      return {...state, total: action.payload};
     case SET_CURRENCY:
       return {...state, currency: action.payload};
     case SET_PAY:
